@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cmath>
-#include "../inc/epnp.h"
+#include "inc/epnp.h"
+using std::sqrt;
 
 EPNPSolver::EPNPSolver(const Eigen::Matrix3d& K,
     const std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>>& pts3d,
@@ -12,7 +13,6 @@ EPNPSolver::EPNPSolver(const Eigen::Matrix3d& K,
     cy = K(1, 2);
     n = std::min(pts2d.size(), pts3d.size());
     for (int i = 0; i < n; ++i) {
-        // TODO see OpenCV
         this->pts3d.push_back(pts3d[i]);
         this->pts2d.push_back(pts2d[i]);
     }
@@ -50,7 +50,6 @@ void EPNPSolver::computePose(Eigen::Matrix3d& R, Eigen::Vector3d& t) {
 }
 
 void EPNPSolver::chooseControlPoints() {
-    using std::sqrt;
     // Take C0 as the reference points centroid:
     cws[0] << 0, 0, 0;
     for (int i = 0; i < n; i++)
@@ -209,12 +208,12 @@ void EPNPSolver::solveN2(Eigen::Matrix3d& R, Eigen::Vector3d& t) {
     Eigen::Vector3d b3 = L_approx.fullPivHouseholderQr().solve(rho);
     Eigen::Vector4d betas;
     if (b3[0] < 0) {
-        betas[0] = std::sqrt(-b3[0]);
-        betas[1] = (b3[2] < 0) ? std::sqrt(-b3[2]) : 0.0;
+        betas[0] = sqrt(-b3[0]);
+        betas[1] = (b3[2] < 0) ? sqrt(-b3[2]) : 0.0;
     }
     else {
-        betas[0] = std::sqrt(b3[0]);
-        betas[1] = (b3[2] > 0) ? std::sqrt(b3[2]) : 0.0;
+        betas[0] = sqrt(b3[0]);
+        betas[1] = (b3[2] > 0) ? sqrt(b3[2]) : 0.0;
     }
 
     if (b3[1] < 0)
@@ -272,9 +271,9 @@ void EPNPSolver::solveN3(Eigen::Matrix3d& R, Eigen::Vector3d& t) {
 
 void EPNPSolver::solveN4(Eigen::Matrix3d& R, Eigen::Vector3d& t) {
     Eigen::Matrix<double, 6, 4> L_approx;
-    L_approx.block(0, 0, 6, 2) = L.block(0, 0, 6, 2);
-    L_approx.block(0, 2, 6, 1) = L.block(0, 3, 6, 1);
-    L_approx.block(0, 3, 6, 1) = L.block(0, 6, 6, 1);
+    L_approx.block<6, 2>(0, 0) = L.block<6, 2>(0, 0);
+    L_approx.block<6, 1>(0, 2) = L.block<6, 1>(0, 3);
+    L_approx.block<6, 1>(0, 3) = L.block<6, 1>(0, 6);
     Eigen::Vector4d b4 = L_approx.fullPivHouseholderQr().solve(rho);
     Eigen::Vector4d betas;
     if (b4[0] < 0) {

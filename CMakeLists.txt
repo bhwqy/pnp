@@ -13,7 +13,7 @@ endif(OpenCV_NOT_FOUND)
 set(CMAKE_CXX_STANDARD_REQUIRED 17)
 set(CMAKE_BUILD_TYPE Release)
 
-include_directories("/home/qy101/Desktop/cppproject/pnp")
+include_directories(${PROJECT_SOURCE_DIR})
 
 if(BUILD_TEST)
 add_executable(pnp test/main.cpp src/pnp_gn.cpp src/pnp_dlt.cpp src/epnp.cpp)
